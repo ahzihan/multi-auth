@@ -3,6 +3,8 @@
 namespace App\Http\Middleware;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
 use Inertia\Middleware;
 
 class HandleInertiaRequests extends Middleware
@@ -17,7 +19,7 @@ class HandleInertiaRequests extends Middleware
     /**
      * Determine the current asset version.
      */
-    public function version(Request $request): string|null
+    public function version(Request $request): string | null
     {
         return parent::version($request);
     }
@@ -30,7 +32,11 @@ class HandleInertiaRequests extends Middleware
     public function share(Request $request): array
     {
         return [
-            ...parent::share($request),
+             ...parent::share($request),
+
+            'canLogin' => Route::has('login'),
+            'canRegister' => Route::has('register'),
+            'userRoll' => Auth::user() ? (Auth::user()->role == 1 ? 'superAdmin' : (Auth::user()->role == 2 ? 'admin' : 'user')) : null,
             'auth' => [
                 'user' => $request->user(),
             ],
